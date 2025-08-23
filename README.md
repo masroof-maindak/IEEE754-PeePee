@@ -1,8 +1,6 @@
 # IEEE754-PeePee
 
-Piss shrimple IEEE754 single-precision floating-pointer converter made for concept-reinforcement.
-
-Took embarrassingly long because of endianness skill issues and a stubborn obstinacy w.r.t using muh modern C++, but fuck it.
+Piss shrimple IEEE754 single-precision floating-pointer converter made for concept-reinforcement. This took embarrassingly long because of endianness skill issues and a stubborn obstinacy w.r.t using muh modern C++ features to an egregious extent.
 
 ## Usage
 
