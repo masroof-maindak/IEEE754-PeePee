@@ -4,21 +4,22 @@
 #include <ranges>
 #include <string_view>
 
-bool is_valid_float_str(std::string_view float_str) {
+std::expected<void, std::string>
+is_valid_float_str(std::string_view float_str) {
 	if (float_str.length() != 32)
-		return false;
+		return std::unexpected("Invalid string length.");
 
 	for (auto c : float_str)
 		if (c != '0' && c != '1')
-			return false;
+			return std::unexpected("Malformed binary string.");
 
-	return true;
+	return {};
 }
 
 std::expected<void, std::string>
 showcase_single_to_decimal(std::string_view float_str) {
-	if (!is_valid_float_str(float_str))
-		return std::unexpected("Invalid string");
+	if (auto valid = is_valid_float_str(float_str); !valid)
+		return valid;
 
 	const char sign_bit{float_str[0]};
 	std::string_view exponent_str{float_str.begin() + 1,
@@ -79,11 +80,13 @@ int main() {
 	std::string_view num{"01111000011110000000000000000000"};
 	auto r = showcase_single_to_decimal(num);
 
-	if (r) {
-		return 0;
-	} else {
-		std::cout << "Epic fail.\n";
-		// TODO: print usage string
+	std::string_view num{"01111000011110000000000000000000"};
+	auto ret = showcase_single_to_decimal(num);
+
+	if (!ret) {
+		std::cerr << ret.error() << "\n";
 		return 4;
 	}
+
+	return 0;
 }
