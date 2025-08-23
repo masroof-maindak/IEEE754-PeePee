@@ -70,17 +70,24 @@ showcase_single_to_decimal(std::string_view float_str) {
 	if (sign_bit == '1')
 		mantissa *= -1;
 
-	printf("Decimal value: %.100g * 2^%d = %.100g\n\n", mantissa, exponent,
+	printf("Decimal value: %.100g * 2^%d = %.100g\n", mantissa, exponent,
 		   mantissa * powf(2, exponent));
 
 	return {};
 }
 
-int main() {
+int main(int argc, char *argv[]) {
+#ifdef DEBUG
 	std::string_view num{"01111000011110000000000000000000"};
-	auto r = showcase_single_to_decimal(num);
+#else
+	if (argc != 2) {
+		std::cerr << "Usage: " << argv[0] << " <binarystring>\n";
+		return 4;
+	}
 
-	std::string_view num{"01111000011110000000000000000000"};
+	std::string_view num{argv[1]};
+#endif
+
 	auto ret = showcase_single_to_decimal(num);
 
 	if (!ret) {
