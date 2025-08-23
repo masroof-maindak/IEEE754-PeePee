@@ -1,19 +1,30 @@
-#include <algorithm>
-#include <bitset>
 #include <cmath>
+#include <expected>
 #include <iostream>
 #include <ranges>
+#include <string_view>
 
-void showcase_single_to_decimal(const std::bitset<32> single) {
-	std::string converted{single.to_string()};
+bool is_valid_float_str(std::string_view float_str) {
+	if (float_str.length() != 32)
+		return false;
 
-	std::cout << "Original: " << converted << "\n\n";
+	for (auto c : float_str)
+		if (c != '0' && c != '1')
+			return false;
 
-	std::reverse(converted.begin(), converted.end());
+	return true;
+}
 
-	const char sign_bit{converted[0]};
-	const std::string exponent_str{converted.substr(1, 8)};
-	const std::string mantissa_str{converted.substr(9, 23)};
+std::expected<void, std::string>
+showcase_single_to_decimal(std::string_view float_str) {
+	if (!is_valid_float_str(float_str))
+		return std::unexpected("Invalid string");
+
+	const char sign_bit{float_str[0]};
+	std::string_view exponent_str{float_str.begin() + 1,
+								  float_str.begin() + 1 + 8};
+	std::string_view mantissa_str{float_str.begin() + 9,
+								  float_str.begin() + 9 + 23};
 
 	std::cout << "Sign-Bit: " << sign_bit << "\n";
 	std::cout << "Exponent: " << exponent_str << "\n";
@@ -60,11 +71,19 @@ void showcase_single_to_decimal(const std::bitset<32> single) {
 
 	printf("Decimal value: %.100g * 2^%d = %.100g\n\n", mantissa, exponent,
 		   mantissa * powf(2, exponent));
+
+	return {};
 }
 
 int main() {
-	std::bitset<32> num{0b00000000000000000001111000011110};
-	showcase_single_to_decimal(num);
+	std::string_view num{"01111000011110000000000000000000"};
+	auto r = showcase_single_to_decimal(num);
 
-	return 0;
+	if (r) {
+		return 0;
+	} else {
+		std::cout << "Epic fail.\n";
+		// TODO: print usage string
+		return 4;
+	}
 }
