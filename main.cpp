@@ -1,6 +1,6 @@
 #include <cmath>
 #include <expected>
-#include <iostream>
+#include <print>
 #include <ranges>
 #include <string_view>
 
@@ -27,9 +27,9 @@ showcase_single_to_decimal(std::string_view float_str) {
 	std::string_view mantissa_str{float_str.begin() + 9,
 								  float_str.begin() + 9 + 23};
 
-	std::cout << "Sign-Bit: " << sign_bit << "\n";
-	std::cout << "Exponent: " << exponent_str << "\n";
-	std::cout << "Mantissa: " << mantissa_str << "\n\n";
+	std::println("Sign-Bit: {}", sign_bit);
+	std::println("Exponent: {}", exponent_str);
+	std::println("Mantissa: {}\n", mantissa_str);
 
 	// 1. Resolve mantissa
 	float mantissa{1};
@@ -37,8 +37,8 @@ showcase_single_to_decimal(std::string_view float_str) {
 
 	for (auto c : mantissa_str) {
 		if (c == '1') {
-			std::cout << "Adding to mantissa: " << "1 / " << power << " = "
-					  << (1.0f / power) << "\n";
+			std::println("Adding to mantissa: 1 / {} = {}", power,
+						 1.0f / power);
 			mantissa += (1.0f / power);
 		}
 
@@ -54,23 +54,22 @@ showcase_single_to_decimal(std::string_view float_str) {
 
 	for (auto c : exponent_str | std::views::reverse) {
 		if (c == '1') {
-			std::cout << "Adding to exponent: " << "2^" << power << " = "
-					  << powf(2, power) << "\n";
-			exponent += powf(2, power);
+			std::println("Adding to exponent: 2^{} = {}", power, (1 << power));
+			exponent += (1 << power);
 		}
 
 		power++;
 	}
 
-	std::cout << "\nExponent: " << exponent << "\n";
+	std::println("\nExponent: {}", exponent);
 	exponent -= 127;
-	std::cout << "Exponent after 'normalizing': " << exponent << "\n\n";
+	std::println("Exponent after 'normalizing': {}", exponent);
 
 	// 3. Bring it all together
 	if (sign_bit == '1')
 		mantissa *= -1;
 
-	printf("Decimal value: %.100g * 2^%d = %.100g\n", mantissa, exponent,
+	printf("\nDecimal value: %.100g * 2^%d = %.100g\n", mantissa, exponent,
 		   mantissa * powf(2, exponent));
 
 	return {};
@@ -91,7 +90,7 @@ int main(int argc, char *argv[]) {
 	auto ret = showcase_single_to_decimal(num);
 
 	if (!ret) {
-		std::cerr << ret.error() << "\n";
+		std::println(stderr, "{}", ret.error());
 		return 4;
 	}
 
