@@ -67,7 +67,8 @@ showcase_singles_conversion(std::string_view floatstr) {
 			return {};
 		} else {
 			is_subnormal = true;
-			std::println("\nSubnormal number detected.\n");
+			std::println("\nSubnormal number detected.");
+			std::println("Subracting 126 from exponent instead of 127.\n");
 		}
 	} else if (exponent == 255) {
 		if (mantissa == 0) {
@@ -79,13 +80,13 @@ showcase_singles_conversion(std::string_view floatstr) {
 		return {};
 	}
 
+	exponent -= 127;
+
 	// 4. Bring it all together
-	if (!is_subnormal) {
-		exponent -= 127;
+	if (!is_subnormal) [[likely]] {
+		exponent += 1;
 		mantissa += 1;
 		std::println("Mantissa after adding implicit 1: {}", mantissa);
-	} else {
-		exponent -= 126;
 	}
 
 	std::println("Exponent after 'normalizing': {}", exponent);
