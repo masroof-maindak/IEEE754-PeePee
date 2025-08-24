@@ -4,12 +4,11 @@
 #include <ranges>
 #include <string_view>
 
-std::expected<void, std::string>
-is_valid_float_str(std::string_view float_str) {
-	if (float_str.length() != 32)
+std::expected<void, std::string> is_valid_float_str(std::string_view floatstr) {
+	if (floatstr.length() != 32)
 		return std::unexpected("Invalid string length.");
 
-	for (auto c : float_str)
+	for (auto c : floatstr)
 		if (c != '0' && c != '1')
 			return std::unexpected("Malformed binary string.");
 
@@ -17,15 +16,13 @@ is_valid_float_str(std::string_view float_str) {
 }
 
 std::expected<void, std::string>
-showcase_single_to_decimal(std::string_view float_str) {
-	if (auto valid = is_valid_float_str(float_str); !valid)
+showcase_singles_conversion(std::string_view floatstr) {
+	if (auto valid = is_valid_float_str(floatstr); !valid)
 		return valid;
 
-	const char sign_bit{float_str[0]};
-	std::string_view exponent_str{float_str.begin() + 1,
-								  float_str.begin() + 1 + 8};
-	std::string_view mantissa_str{float_str.begin() + 9,
-								  float_str.begin() + 9 + 23};
+	const char sign_bit{floatstr[0]};
+	std::string_view exponent_str{floatstr.begin() + 1, floatstr.begin() + 9};
+	std::string_view mantissa_str{floatstr.begin() + 9, floatstr.begin() + 32};
 
 	std::println("Sign-Bit: {}", sign_bit);
 	std::println("Exponent: {}", exponent_str);
@@ -37,9 +34,8 @@ showcase_single_to_decimal(std::string_view float_str) {
 
 	for (auto c : mantissa_str) {
 		if (c == '1') {
-			std::println("Adding to mantissa: 1 / {} = {}", power,
-						 1.0f / power);
-			mantissa += (1.0f / power);
+			std::println("Adding to mantissa: 1 / {} = {}", power, 1.0 / power);
+			mantissa += (1.0 / power);
 		}
 
 		power *= 2;
@@ -87,7 +83,7 @@ int main(int argc, char *argv[]) {
 	std::string_view num{argv[1]};
 #endif
 
-	auto ret = showcase_single_to_decimal(num);
+	auto ret = showcase_singles_conversion(num);
 
 	if (!ret) {
 		std::println(stderr, "{}", ret.error());
