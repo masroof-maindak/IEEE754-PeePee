@@ -29,7 +29,7 @@ showcase_singles_conversion(std::string_view floatstr) {
 	std::println("Mantissa: {}\n", mantissa_str);
 
 	// 1. Resolve mantissa
-	float mantissa{1};
+	float mantissa{0};
 	int power{2};
 
 	for (auto c : mantissa_str) {
@@ -42,7 +42,7 @@ showcase_singles_conversion(std::string_view floatstr) {
 	}
 
 	// CHECK: Is this a standards violation? Fuck it.
-	printf("\nMantissa: %.100g\n\n", mantissa);
+	printf("Mantissa: %.100g\n\n", mantissa);
 
 	// 2. Determine exponent
 	int exponent{0};
@@ -58,10 +58,38 @@ showcase_singles_conversion(std::string_view floatstr) {
 	}
 
 	std::println("\nExponent: {}", exponent);
-	exponent -= 127;
+
+	// 3. Cater to edge cases
+	bool is_subnormal{false};
+	if (exponent == 0) {
+		if (mantissa == 0) {
+			std::println("\nDecimal Value: {}0", sign_bit == '1' ? '-' : '+');
+			return {};
+		} else {
+			is_subnormal = true;
+			std::println("\nSubnormal number detected.\n");
+		}
+	} else if (exponent == 255) {
+		if (mantissa == 0) {
+			std::println("\nDecimal Value: {}inf", sign_bit == '1' ? '-' : '+');
+		} else {
+			std::println("\nNaN detected.");
+		}
+
+		return {};
+	}
+
+	// 4. Bring it all together
+	if (!is_subnormal) {
+		exponent -= 127;
+		mantissa += 1;
+		std::println("Mantissa after adding implicit 1: {}", mantissa);
+	} else {
+		exponent -= 126;
+	}
+
 	std::println("Exponent after 'normalizing': {}", exponent);
 
-	// 3. Bring it all together
 	if (sign_bit == '1')
 		mantissa *= -1;
 
@@ -73,7 +101,7 @@ showcase_singles_conversion(std::string_view floatstr) {
 
 int main(int argc, char *argv[]) {
 #ifdef DEBUG
-	std::string_view num{"01111000011110000000000000000000"};
+	std::string_view num{"00000000010000000000000000000000"};
 #else
 	if (argc != 2) {
 		std::cerr << "Usage: " << argv[0] << " <binarystring>\n";

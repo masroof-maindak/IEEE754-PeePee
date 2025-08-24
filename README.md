@@ -16,7 +16,7 @@ bear -- make # In case you want to hack away at the file; else, just `make` will
 - [x] Replace std::bitset w/ std::string_views
 - [x] CLI arguments + Take input from stdin
 - [x] Use std::print where applicable
-- [ ] Handle edge cases: +/-0, infinity, NaN and shit
+- [x] Handle edge cases: +/-0, infinity, NaN and shit
 
 ## Acknowledgements
 
