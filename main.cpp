@@ -80,11 +80,11 @@ showcase_singles_conversion(std::string_view floatstr) {
 		return {};
 	}
 
-	exponent -= 127;
+	exponent -= 126;
 
 	// 4. Bring it all together
 	if (!is_subnormal) [[likely]] {
-		exponent += 1;
+		exponent -= 1;
 		mantissa += 1;
 		std::println("Mantissa after adding implicit 1: {}", mantissa);
 	}
