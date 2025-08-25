@@ -1,6 +1,13 @@
 # IEEE754-PeePee
 
-Piss shrimple IEEE754 single-precision floating-pointer converter made for concept-reinforcement. This took embarrassingly long because of endianness skill issues and a stubborn obstinacy w.r.t using muh modern C++ features to an egregious extent.
+~Piss shrimple~ Unnecessarily over-engineered & complex IEEE754 single/double-precision floating-pointer converter made for concept-reinforcement. This took embarrassingly long because of endianness skill issues and a stubborn obstinacy w.r.t using muh modern C++ features to an egregious extent.
+
+The double-precision version hasn't been tested yet, but I'm fairly certain it's correct, and just can't be bothered to test it. Feel free to brutally disabuse me of this notion.
+
+## Observations
+
+- My LSP (Clangd) and compile times grew noticeably more sluggish as I kept introducing more modern CPP slop.
+- TL;DR: This shit isn't worth it.
 
 ## Usage
 

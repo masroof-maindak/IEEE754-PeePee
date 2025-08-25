@@ -1,35 +1,75 @@
 #include <cmath>
+#include <cstddef>
 #include <expected>
 #include <print>
 #include <ranges>
 #include <string_view>
 
-std::expected<void, std::string> is_valid_float_str(std::string_view floatstr) {
-	if (floatstr.length() != 32)
+std::expected<size_t, std::string> is_valid_str(std::string_view fp_str) {
+	size_t strlen = fp_str.length();
+
+	if (strlen != 32 && strlen != 64)
 		return std::unexpected("Invalid string length.");
 
-	for (auto c : floatstr)
+	for (auto c : fp_str)
 		if (c != '0' && c != '1')
 			return std::unexpected("Malformed binary string.");
 
-	return {};
+	return fp_str.length();
 }
 
 std::expected<void, std::string>
-showcase_singles_conversion(std::string_view floatstr) {
-	if (auto valid = is_valid_float_str(floatstr); !valid)
-		return valid;
+showcase_singles_conversion(std::string_view fp_str) {
+	enum class Float754 {
+		singleP,
+		doubleP,
+	};
 
-	const char sign_bit{floatstr[0]};
-	std::string_view exponent_str{floatstr.begin() + 1, floatstr.begin() + 9};
-	std::string_view mantissa_str{floatstr.begin() + 9, floatstr.begin() + 32};
+	Float754 flt_type{};
+
+	if (auto len = is_valid_str(fp_str); len) {
+		flt_type = (len == 32) ? Float754::singleP : Float754::doubleP;
+	} else {
+		return std::unexpected(len.error());
+	}
+
+	int exp_first_idx{1};
+	int exp_last_idx{};
+
+	int mantissa_first_idx{};
+	int mantissa_last_idx{};
+
+	int exp_sub_magnitude{};
+	int exp_upper_bound{};
+
+	if (flt_type == Float754::singleP) {
+		exp_last_idx	   = 9;
+		mantissa_first_idx = 9;
+		mantissa_last_idx  = 32;
+
+		exp_sub_magnitude = 127;
+		exp_upper_bound	  = 255;
+	} else {
+		exp_last_idx	   = 12;
+		mantissa_first_idx = 12;
+		mantissa_last_idx  = 64;
+
+		exp_sub_magnitude = 1023;
+		exp_upper_bound	  = 2047;
+	}
+
+	const char sign_bit{fp_str[0]};
+	std::string_view exponent_str{fp_str.begin() + exp_first_idx,
+								  fp_str.begin() + exp_last_idx};
+	std::string_view mantissa_str{fp_str.begin() + mantissa_first_idx,
+								  fp_str.begin() + mantissa_last_idx};
 
 	std::println("Sign-Bit: {}", sign_bit);
 	std::println("Exponent: {}", exponent_str);
 	std::println("Mantissa: {}\n", mantissa_str);
 
 	// 1. Resolve mantissa
-	float mantissa{0};
+	double mantissa{0};
 	int power{2};
 
 	for (auto c : mantissa_str) {
@@ -61,6 +101,7 @@ showcase_singles_conversion(std::string_view floatstr) {
 
 	// 3. Cater to edge cases
 	bool is_subnormal{false};
+
 	if (exponent == 0) {
 		if (mantissa == 0) {
 			std::println("\nDecimal Value: {}0", sign_bit == '1' ? '-' : '+');
@@ -68,9 +109,11 @@ showcase_singles_conversion(std::string_view floatstr) {
 		} else {
 			is_subnormal = true;
 			std::println("\nSubnormal number detected.");
-			std::println("Subracting 126 from exponent instead of 127.\n");
+			std::println("Subracting {} from exponent instead of {}.\n",
+						 exp_sub_magnitude - 1, exp_sub_magnitude);
 		}
-	} else if (exponent == 255) {
+	} else if (exponent == exp_upper_bound) {
+
 		if (mantissa == 0) {
 			std::println("\nDecimal Value: {}inf", sign_bit == '1' ? '-' : '+');
 		} else {
@@ -81,10 +124,11 @@ showcase_singles_conversion(std::string_view floatstr) {
 	}
 
 	// 4. Bring it all together
-	exponent -= 126;
+	exponent -= exp_sub_magnitude;
 
-	if (!is_subnormal) [[likely]] {
-		exponent -= 1;
+	if (is_subnormal) [[unlikely]] { // Probably?
+		exponent += 1;
+	} else {
 		mantissa += 1;
 		std::println("Mantissa after adding implicit 1: {}", mantissa);
 	}
@@ -102,7 +146,7 @@ showcase_singles_conversion(std::string_view floatstr) {
 
 int main(int argc, char *argv[]) {
 #ifdef DEBUG
-	std::string_view num{"00000000010000000000000000000000"};
+	std::string_view num{"00000100010000000000000000000000"};
 #else
 	if (argc != 2) {
 		std::println(stderr, "Usage: {} <binarystring>", argv[0]);
