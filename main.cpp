@@ -80,9 +80,9 @@ showcase_singles_conversion(std::string_view floatstr) {
 		return {};
 	}
 
+	// 4. Bring it all together
 	exponent -= 126;
 
-	// 4. Bring it all together
 	if (!is_subnormal) [[likely]] {
 		exponent -= 1;
 		mantissa += 1;
@@ -105,7 +105,7 @@ int main(int argc, char *argv[]) {
 	std::string_view num{"00000000010000000000000000000000"};
 #else
 	if (argc != 2) {
-		std::cerr << "Usage: " << argv[0] << " <binarystring>\n";
+		std::println(stderr, "Usage: {} <binarystring>", argv[0]);
 		return 4;
 	}
 
