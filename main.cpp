@@ -18,8 +18,7 @@ std::expected<size_t, std::string> is_valid_str(std::string_view fp_str) {
 	return fp_str.length();
 }
 
-std::expected<void, std::string>
-showcase_singles_conversion(std::string_view fp_str) {
+std::expected<void, std::string> showcase_conversion(std::string_view fp_str) {
 	enum class Float754 {
 		singleP,
 		doubleP,
@@ -69,6 +68,8 @@ showcase_singles_conversion(std::string_view fp_str) {
 	std::println("Mantissa: {}\n", mantissa_str);
 
 	// 1. Resolve mantissa
+	// AKA the significand. This basically tells you the 'actual number' so to
+	// speak
 	double mantissa{0};
 	int power{2};
 
@@ -81,10 +82,13 @@ showcase_singles_conversion(std::string_view fp_str) {
 		power *= 2;
 	}
 
-	// CHECK: Is this a standards violation? Fuck it.
+	// CHECK: Is this a standards violation? Fuck if I know.
+
 	printf("Mantissa: %.100g\n\n", mantissa);
 
 	// 2. Determine exponent
+	// This denotes *where* the binary point would be placed relative tot he
+	// start of the digit
 	int exponent{0};
 	power = 0;
 
@@ -156,7 +160,7 @@ int main(int argc, char *argv[]) {
 	std::string_view num{argv[1]};
 #endif
 
-	auto ret = showcase_singles_conversion(num);
+	auto ret = showcase_conversion(num);
 
 	if (!ret) {
 		std::println(stderr, "{}", ret.error());
