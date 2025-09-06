@@ -1,4 +1,4 @@
-# IEEE754-PeePee
+# IEEE754 Pee Pee
 
 ~Piss shrimple~ Unnecessarily over-engineered & complex IEEE754 single/double-precision floating-pointer converter made for concept-reinforcement. This took embarrassingly long because of endianness skill issues and a stubborn obstinacy w.r.t using muh modern C++ features to an egregious extent.
 
@@ -12,8 +12,8 @@ The double-precision version hasn't been tested yet, but I'm fairly certain it's
 ## Usage
 
 ```bash
-git clone https://github.com/masroof-maindak/IEEE754-PeePee
-cd IEEE754-PeePee
+git clone https://github.com/masroof-maindak/ieee754-pee-pee.git
+cd ieee754-pee-pee
 bear -- make # In case you want to hack away at the file; else, just `make` will suffice
 ./main
 ```
